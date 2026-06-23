@@ -1,0 +1,11 @@
+account_id,account_name,account_type,city,state,region
+ACC001,Apollo Hospital,Hospital,Mumbai,Maharashtra,West
+ACC002,Fortis Hospital,Hospital,Pune,Maharashtra,West
+ACC003,Max Healthcare,Hospital,Delhi,Delhi,North
+ACC004,MedPlus Pharmacy,Pharmacy,Hyderabad,Telangana,South
+ACC005,Apollo Pharmacy,Pharmacy,Bangalore,Karnataka,South
+ACC006,Manipal Hospital,Hospital,Bangalore,Karnataka,South
+ACC007,Ruby Hall Clinic,Clinic,Pune,Maharashtra,West
+ACC008,Yashoda Hospital,Hospital,Hyderabad,Telangana,South
+ACC009,Narayana Health,Hospital,Bangalore,Karnataka,South
+ACC010,AIIMS Delhi,Hospital,Delhi,Delhi,North
