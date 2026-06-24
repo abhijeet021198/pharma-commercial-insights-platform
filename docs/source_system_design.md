@@ -20,7 +20,7 @@ The Pharma Analytics Platform ingests data from multiple operational systems inc
 
 # Accounts Source
 
-**Table Name:** accounts_raw
+**Table Name:** accounts
 
 | Column Name  | Data Type | Description                |
 | ------------ | --------- | -------------------------- |
@@ -41,7 +41,7 @@ The Pharma Analytics Platform ingests data from multiple operational systems inc
 
 # Products Source
 
-**Table Name:** products_raw
+**Table Name:** products
 
 | Column Name  | Data Type | Description        |
 | ------------ | --------- | ------------------ |
@@ -60,7 +60,7 @@ The Pharma Analytics Platform ingests data from multiple operational systems inc
 
 # Sales Representative Source
 
-**Table Name:** sales_rep_raw
+**Table Name:** sales_rep
 
 | Column Name | Data Type | Description               |
 | ----------- | --------- | ------------------------- |
@@ -78,7 +78,7 @@ The Pharma Analytics Platform ingests data from multiple operational systems inc
 
 # Orders Source
 
-**Table Name:** orders_raw
+**Table Name:** orders
 
 | Column Name | Data Type     | Description          |
 | ----------- | ------------- | -------------------- |
@@ -100,7 +100,7 @@ The Pharma Analytics Platform ingests data from multiple operational systems inc
 
 # Interactions Source
 
-**Table Name:** interactions_raw
+**Table Name:** interactions
 
 | Column Name      | Data Type | Description            |
 | ---------------- | --------- | ---------------------- |
@@ -120,7 +120,7 @@ The Pharma Analytics Platform ingests data from multiple operational systems inc
 
 # Inventory Source
 
-**Table Name:** inventory_raw
+**Table Name:** inventory
 
 | Column Name    | Data Type | Description             |
 | -------------- | --------- | ----------------------- |

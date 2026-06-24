@@ -30,7 +30,7 @@ Apache Airflow
 ↓
 AWS S3 Bronze Layer
 ↓
-Snowflake RAW Schema
+Snowflake BRONZE Schema
 ↓
 dbt Silver Models
 ↓
@@ -133,7 +133,7 @@ Daily Pipeline Flow:
 
 1. Extract source data
 2. Store files in AWS S3
-3. Load Snowflake RAW tables
+3. Load Snowflake BRONZE tables
 4. Execute dbt Silver models
 5. Execute dbt Gold models
 6. Run validation checks
@@ -146,7 +146,7 @@ Daily Pipeline Flow:
 Technology:
 
 * AWS S3
-* Snowflake RAW Schema
+* Snowflake BRONZE Schema
 
 Purpose:
 
@@ -154,12 +154,12 @@ Store source data exactly as received.
 
 Tables:
 
-* accounts_raw
-* products_raw
-* sales_rep_raw
-* orders_raw
-* interactions_raw
-* inventory_raw
+* accounts
+* products
+* sales_rep
+* orders
+* interactions
+* inventory
 
 Characteristics:
 

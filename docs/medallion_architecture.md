@@ -16,7 +16,7 @@ Apache Airflow
 ↓
 AWS S3 (Bronze Layer)
 ↓
-Snowflake RAW Schema
+Snowflake BRONZE Schema
 ↓
 dbt Transformations
 ↓
@@ -62,13 +62,13 @@ The Bronze layer serves as the system of record and preserves historical source 
 AWS S3
 
 Snowflake Schema:
-RAW
+BRONZE
 
 ---
 
 ## Tables
 
-### accounts_raw
+### accounts
 
 Stores account information from CRM.
 
@@ -83,7 +83,7 @@ Columns:
 
 ---
 
-### products_raw
+### products
 
 Stores medicine information from Product Master.
 
@@ -96,7 +96,7 @@ Columns:
 
 ---
 
-### sales_rep_raw
+### sales_rep
 
 Stores sales representative information from HR systems.
 
@@ -108,7 +108,7 @@ Columns:
 
 ---
 
-### orders_raw
+### orders
 
 Stores order transactions from ERP systems.
 
@@ -124,7 +124,7 @@ Columns:
 
 ---
 
-### interactions_raw
+### interactions
 
 Stores healthcare provider interactions.
 
@@ -138,7 +138,7 @@ Columns:
 
 ---
 
-### inventory_raw
+### inventory
 
 Stores inventory snapshots.
 
@@ -386,7 +386,7 @@ Daily Workflow:
 
 1. Extract source files.
 2. Load files to AWS S3.
-3. Load raw data into Snowflake RAW schema.
+3. Load raw data into Snowflake BRONZE schema.
 4. Execute dbt Silver models.
 5. Execute dbt Gold models.
 6. Run data quality checks.
@@ -418,14 +418,14 @@ Common dbt Tests:
 
 Schemas:
 
-RAW
+BRONZE
 
-* accounts_raw
-* products_raw
-* sales_rep_raw
-* orders_raw
-* interactions_raw
-* inventory_raw
+* accounts
+* products
+* sales_rep
+* orders
+* interactions
+* inventory
 
 SILVER
 
@@ -451,7 +451,7 @@ MART
 # Benefits of the Architecture
 
 1. Scalable cloud-native design.
-2. Separation of raw and curated data.
+2. Separation of bronze and curated data.
 3. Reusable business dimensions.
 4. Faster reporting performance.
 5. Strong data governance.

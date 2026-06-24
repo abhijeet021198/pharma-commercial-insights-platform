@@ -182,11 +182,11 @@ Characteristics:
 
 Tables:
 
-* accounts_raw
-* orders_raw
-* interactions_raw
-* products_raw
-* inventory_raw
+* accounts
+* orders
+* interactions
+* products
+* inventory
 
 ---
 

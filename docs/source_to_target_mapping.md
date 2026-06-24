@@ -10,7 +10,7 @@ This document defines how source system data is transformed and loaded into the 
 
 ## Source
 
-accounts_raw
+accounts
 
 ## Target
 
@@ -32,7 +32,7 @@ dim_account
 
 ## Source
 
-products_raw
+products
 
 ## Target
 
@@ -52,7 +52,7 @@ dim_product
 
 ## Source
 
-sales_rep_raw
+sales_rep
 
 ## Target
 
@@ -91,7 +91,7 @@ dim_date
 
 ## Source
 
-orders_raw
+orders
 
 ## Target
 
@@ -112,7 +112,7 @@ fact_orders
 
 ## Source
 
-interactions_raw
+interactions
 
 ## Target
 
@@ -131,7 +131,7 @@ fact_interactions
 
 ## Source
 
-inventory_raw
+inventory
 
 ## Target
 

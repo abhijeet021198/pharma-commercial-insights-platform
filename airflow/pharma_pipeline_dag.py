@@ -22,7 +22,7 @@ def extract_inventory():
     print("Extracting inventory data...")
 
 def load_to_snowflake():
-    print("Loading data into Snowflake RAW tables...")
+    print("Loading data into Snowflake BRONZE tables...")
 
 def run_dbt_models():
     print("Running dbt transformations...")
