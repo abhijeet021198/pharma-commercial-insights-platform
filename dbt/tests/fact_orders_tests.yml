@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: fact_orders
+    columns:
+      - name: ORDER_ID
+        tests:
+          - unique
+          - not_null
+
+      - name: ACCOUNT_ID
+        tests:
+          - not_null
+
+      - name: PRODUCT_ID
+        tests:
+          - not_null
+
+      - name: REVENUE
+        tests:
+          - not_null
