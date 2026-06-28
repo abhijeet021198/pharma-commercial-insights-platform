@@ -1,9 +1,0 @@
-version: 2
-
-models:
-  - name: dim_account
-    columns:
-      - name: ACCOUNT_ID
-        tests:
-          - unique
-          - not_null

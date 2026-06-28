@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: bronze
+    database: PHARMA_DB
+    schema: BRONZE
+
+    tables:
+      - name: ACCOUNTS
+      - name: PRODUCTS
+      - name: ORDERS
+      - name: INVENTORY
+      - name: INTERACTIONS
+      - name: SALES_REP

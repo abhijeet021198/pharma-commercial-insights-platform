@@ -1,0 +1,201 @@
+version: 2
+
+models:
+  - name: dim_account
+    description: "Dimension table containing account master data."
+
+    columns:
+      - name: account_key
+        description: "Warehouse surrogate key for the account."
+
+        tests:
+          - unique
+          - not_null
+
+      - name: account_id
+        description: "Unique identifier for an account."
+
+        tests:
+          - unique
+          - not_null
+
+      - name: account_name
+        description: "Business account name."
+
+      - name: account_type
+        description: "Type of healthcare account."
+
+      - name: city
+        description: "Account city."
+
+      - name: state
+        description: "Account state."
+
+      - name: region
+        description: "Sales region."
+
+
+
+  - name: dim_product
+    description: "Dimension table containing product master data."
+
+    columns:
+      - name: product_key
+        description: "Warehouse surrogate key for the product."
+        tests:
+          - unique
+          - not_null
+          
+      - name: product_id
+        description: "Unique identifier for a product."
+        tests:
+          - unique
+          - not_null
+
+      - name: product_name
+        description: "Product name."
+
+      - name: brand
+        description: "Product brand."
+
+      - name: category
+        description: "Product category."
+
+
+  - name: dim_sales_rep
+    description: "Dimension table containing sales representative master data."
+
+    columns:
+      - name: rep_key
+        description: "Warehouse surrogate key for the sales representative."
+        tests:
+          - unique
+          - not_null
+
+      - name: rep_id
+        description: "Unique identifier for a sales representative."
+        tests:
+          - unique
+          - not_null
+
+      - name: rep_name
+        description: "Sales representative name."
+
+      - name: territory
+        description: "Assigned sales territory."
+
+
+  - name: fact_orders
+    description: "Fact table containing order transactions."
+
+    columns:
+
+      - name: order_id
+        description: "Business order identifier."
+        tests:
+          - unique
+          - not_null
+
+      - name: account_key
+        description: "Foreign key to DIM_ACCOUNT."
+        tests:
+          - not_null
+          - relationships:
+             arguments:
+              to: ref('dim_account')
+              field: account_key
+
+      - name: product_key
+        description: "Foreign key to DIM_PRODUCT."
+        tests:
+          - not_null
+          - relationships:
+             arguments:
+              to: ref('dim_product')
+              field: product_key
+
+      - name: rep_key
+        description: "Foreign key to DIM_SALES_REP."
+        tests:
+          - not_null
+          - relationships:
+             arguments:
+              to: ref('dim_sales_rep')
+              field: rep_key
+
+      - name: date_key
+        description: "Foreign key to DIM_DATE."
+        tests:
+          - not_null
+          - relationships:
+             arguments:
+              to: ref('dim_date')
+              field: date_key
+
+      - name: quantity
+        description: "Units ordered."
+
+      - name: revenue
+        description: "Revenue generated from the order."
+
+
+  - name: fact_inventory
+    description: "Fact table containing daily inventory snapshots."
+
+    columns:
+
+      - name: product_key
+        tests:
+          - not_null
+          - relationships:
+             arguments:
+              to: ref('dim_product')
+              field: product_key
+
+      - name: date_key
+        tests:
+          - not_null
+          - relationships:
+             arguments:
+              to: ref('dim_date')
+              field: date_key
+
+      - name: stock_quantity
+        description: "Quantity of product in stock on the given date."
+
+  - name: fact_interactions
+    description: "Fact table containing customer interaction events."
+
+    columns:
+
+      - name: interaction_id
+        tests:
+          - unique
+          - not_null
+
+      - name: account_key
+        tests:
+          - not_null
+          - relationships:
+             arguments:
+              to: ref('dim_account')
+              field: account_key
+
+      - name: rep_key
+        tests:
+          - not_null
+          - relationships:
+             arguments:
+              to: ref('dim_sales_rep')
+              field: rep_key
+
+      - name: date_key
+        tests:
+          - not_null
+          - relationships:
+             arguments:
+              to: ref('dim_date')
+              field: date_key
+
+      - name: interaction_type
+        description: "Type of interaction (e.g., call, email, meeting)."
