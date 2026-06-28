@@ -2,7 +2,21 @@
 
 ## Project Name
 
-Pharma Analytics Platform
+**Pharma Commercial Insights Platform**
+
+---
+
+# Project Status
+
+| Phase                 | Status         |
+| --------------------- | -------------- |
+| Foundation Setup      | ✅ Completed    |
+| Bronze Layer          | ✅ Completed    |
+| Silver Layer          | ✅ Completed    |
+| Gold Layer            | 🔄 In Progress |
+| Airflow Orchestration | ⏳ Planned      |
+| AWS S3 Integration    | ⏳ Planned      |
+| Power BI Dashboard    | ⏳ Planned      |
 
 ---
 
@@ -16,316 +30,351 @@ Pharmaceutical sales and commercial teams require a centralized analytics platfo
 * Healthcare provider interactions
 * Inventory availability
 
-Data exists across multiple operational systems and must be consolidated into a single analytics platform.
+Operational data is distributed across multiple systems and requires standardization before it can be used for analytics and reporting.
+
+The objective of this platform is to build a scalable, modern Data Engineering solution that transforms raw operational data into trusted business-ready datasets.
 
 ---
 
 # High Level Architecture
 
-Source APIs
-↓
-Python Extraction Layer
-↓
-Apache Airflow
-↓
-AWS S3 Bronze Layer
-↓
-Snowflake BRONZE Schema
-↓
-dbt Silver Models
-↓
-Snowflake SILVER Schema
-↓
-dbt Gold Models
-↓
-Snowflake GOLD Schema
-↓
-Semantic Marts
-↓
-Power BI Dashboards
+```text
+CSV Files + OpenFDA API
+            │
+            ▼
+     Python Extraction Layer
+            │
+            ▼
+   Reusable Bronze Loader
+            │
+            ▼
+ Snowflake BRONZE Schema
+            │
+            ▼
+   dbt Bronze Staging Models
+            │
+            ▼
+ Snowflake SILVER Schema
+   (Dimensions & Facts)
+            │
+            ▼
+    dbt GOLD Business Models
+            │
+            ▼
+ Snowflake GOLD Schema
+            │
+            ▼
+     Power BI Dashboards
+```
+
+---
+
+# Current Repository Structure
+
+```text
+pharma-commercial-insights-platform/
+
+├── data/
+│   ├── accounts.csv
+│   ├── products.csv
+│   ├── orders.csv
+│   ├── inventory.csv
+│   ├── interactions.csv
+│   ├── sales_rep.csv
+│   └── openfda_drugs.csv
+│
+├── python/
+│   ├── extract/
+│   ├── load/
+│   └── utils/
+│
+├── dbt/
+│   └── pharma_dbt/
+│       ├── models/
+│       │   ├── bronze/
+│       │   ├── silver/
+│       │   └── gold/
+│       ├── macros/
+│       └── tests/
+│
+└── docs/
+```
 
 ---
 
 # Source Systems
 
-## CRM API
+## Internal Business Data
 
 Provides:
 
-* Accounts
-* Interactions
-
-Example Data:
-
-* Hospitals
-* Clinics
-* Pharmacies
-* Sales Activities
-
----
-
-## ERP API
-
-Provides:
-
+* Customer Accounts
+* Products
 * Orders
-* Revenue
-* Quantity Sold
+* Inventory
+* Sales Representatives
+* Customer Interactions
 
----
+## External Data Source
 
-## Product Master API
-
-Provides:
-
-* Product Details
-* Brand Information
-* Product Categories
-
----
-
-## Inventory API
+### OpenFDA API
 
 Provides:
 
-* Daily Inventory Levels
-* Stock Availability
+* Drug Information
+* Product Metadata
+* Regulatory Reference Data
 
 ---
 
 # Data Extraction Layer
 
-Technology:
+### Technology
 
 * Python
+* Pandas
+* Snowflake Connector
+* OpenFDA REST API
 
-Responsibilities:
+### Responsibilities
 
-* Connect to source APIs
-* Extract daily data
-* Validate API responses
-* Store raw files in AWS S3
-
-Python Libraries:
-
-* requests
-* pandas
-* boto3
-* snowflake-connector-python
-
----
-
-# Workflow Orchestration
-
-Technology:
-
-* Apache Airflow
-
-Responsibilities:
-
-* Schedule daily jobs
-* Monitor pipeline execution
-* Trigger Snowflake loads
-* Execute dbt transformations
-* Run data quality checks
-
-Daily Pipeline Flow:
-
-1. Extract source data
-2. Store files in AWS S3
-3. Load Snowflake BRONZE tables
-4. Execute dbt Silver models
-5. Execute dbt Gold models
-6. Run validation checks
-7. Refresh reporting datasets
+* Read source CSV files
+* Extract OpenFDA data
+* Validate source data
+* Load Bronze tables using reusable ingestion framework
+* Perform row count validation
 
 ---
 
 # Bronze Layer
 
-Technology:
+### Technology
 
-* AWS S3
-* Snowflake BRONZE Schema
+* Python
+* Snowflake
+
+### Purpose
+
+Store raw source data with minimal transformation.
+
+### Tables
+
+* ACCOUNTS
+* PRODUCTS
+* ORDERS
+* INVENTORY
+* INTERACTIONS
+* SALES_REP
+
+### Characteristics
+
+* Raw business data
+* Reloadable
+* Auditable
+* Minimal transformations
+
+---
+
+# Bronze Staging Layer (dbt)
 
 Purpose:
 
-Store source data exactly as received.
+Standardize raw Bronze tables before dimensional modeling.
 
-Tables:
+### Models
 
-* accounts
-* products
-* sales_rep
-* orders
-* interactions
-* inventory
+* STG_ACCOUNTS
+* STG_PRODUCTS
+* STG_ORDERS
+* STG_INVENTORY
+* STG_INTERACTIONS
+* STG_SALES_REP
 
-Characteristics:
+Responsibilities:
 
-* Immutable
-* Historical
-* Auditable
-* Minimal Transformations
+* Column standardization
+* Consistent naming
+* Clean source abstraction
 
 ---
 
 # Silver Layer
 
-Technology:
+### Technology
 
 * dbt
 * Snowflake
 
 Purpose:
 
-Create standardized and reusable dimensions.
+Create reusable dimensional models following Kimball Star Schema principles.
 
-Tables:
+## Dimension Tables
 
-* dim_account
-* dim_product
-* dim_sales_rep
-* dim_date
+* DIM_ACCOUNT
+* DIM_PRODUCT
+* DIM_SALES_REP
+* DIM_DATE
 
-Transformations:
+Features:
 
-* Deduplication
-* Null Handling
-* Data Standardization
-* Surrogate Key Generation
-* Data Validation
+* Surrogate Keys
+* Business Keys
+* Standardized Attributes
+* Reusable Dimensions
 
 ---
 
-# Gold Layer
+## Fact Tables
 
-Technology:
-
-* dbt
-* Snowflake
-
-Purpose:
-
-Create analytics-ready fact tables.
-
-Tables:
-
-## fact_orders
+### FACT_ORDERS
 
 Measures:
 
-* quantity
-* revenue
+* Quantity
+* Revenue
+
+Dimensions:
+
+* Account
+* Product
+* Sales Representative
+* Date
 
 ---
 
-## fact_interactions
+### FACT_INVENTORY
 
 Measures:
 
-* interaction_count
+* Stock Quantity
+
+Dimensions:
+
+* Product
+* Date
 
 ---
 
-## fact_inventory
+### FACT_INTERACTIONS
 
 Measures:
 
-* stock_quantity
+* Interaction Type
+
+Dimensions:
+
+* Account
+* Sales Representative
+* Date
 
 ---
 
-# Semantic Layer
+# Star Schema
 
-Purpose:
+```text
+                 DIM_ACCOUNT
+                      │
+                      │
+DIM_PRODUCT ── FACT_ORDERS ── DIM_SALES_REP
+                      │
+                 DIM_DATE
 
-Provide business-friendly data marts for reporting.
+DIM_PRODUCT ─ FACT_INVENTORY ─ DIM_DATE
 
----
-
-## Territory Insights Mart
-
-KPIs:
-
-* Total Revenue
-* Total Orders
-* Total Interactions
-* Active Accounts
-
----
-
-## Product Performance Mart
-
-KPIs:
-
-* Revenue by Product
-* Quantity Sold
-* Product Growth Rate
+DIM_ACCOUNT ─ FACT_INTERACTIONS ─ DIM_SALES_REP
+                      │
+                 DIM_DATE
+```
 
 ---
 
-## Account Insights Mart
+# Data Quality Framework
 
-KPIs:
+Implemented using dbt Generic Tests.
 
-* Revenue by Account
-* Interaction Count
-* Product Adoption
+Current Status:
+
+* ✅ Unique Tests
+* ✅ Not Null Tests
+* ✅ Relationship Tests
+
+Project Status:
+
+* 34 Tests Implemented
+* 34 Tests Passing
+
+Validation includes:
+
+* Primary key uniqueness
+* Mandatory fields
+* Referential integrity
+* Foreign key validation
+
+---
+
+# Engineering Decisions
+
+Current implementation follows:
+
+* Medallion Architecture
+* Kimball Star Schema
+* Surrogate Keys
+* Lookup Joins
+* LEFT JOIN strategy for preserving business events
+* dbt Generic Testing Framework
+
+---
+
+# Gold Layer (Next Phase)
+
+Business-ready analytical models.
+
+Planned Models:
+
+* ACCOUNT_INSIGHTS
+* PRODUCT_PERFORMANCE
+* TERRITORY_INSIGHTS
+
+These models will aggregate Silver layer data into reusable business KPIs for reporting.
 
 ---
 
 # Reporting Layer
 
-Technology:
+Technology
 
-* Power BI
+* Power BI (Planned)
 
-Dashboards:
+Planned Dashboards
 
 * Executive Dashboard
+* Product Performance Dashboard
 * Territory Dashboard
-* Product Dashboard
 * Account Dashboard
-
----
-
-# Data Quality Checks
-
-Implemented using dbt tests.
-
-Checks:
-
-* not_null
-* unique
-* relationships
-* accepted_values
-
-Examples:
-
-* Product must exist in Product Master.
-* Account must exist in Account Dimension.
-* Revenue cannot be negative.
-* Quantity cannot be negative.
 
 ---
 
 # Future Enhancements
 
-* Incremental Processing
-* Change Data Capture (CDC)
+* Apache Airflow Orchestration
+* AWS S3 Data Lake Integration
+* Incremental dbt Models
 * Slowly Changing Dimensions (SCD Type 2)
-* Real-Time Data Processing
-* Forecasting Models
-* Data Observability Framework
+* Snowflake Streams & Tasks
+* CI/CD Pipeline
+* Data Observability
+* Automated Deployment
 
 ---
 
 # Key Benefits
 
-* Scalable architecture
-* Enterprise-grade analytics
-* Reusable business models
-* Improved data quality
-* Faster reporting performance
-* Centralized reporting platform
+* End-to-End Modern Data Engineering Pipeline
+* Medallion Architecture Implementation
+* Enterprise Star Schema Design
+* Reusable dbt Transformation Framework
+* Automated Data Quality Validation
+* Modular and Scalable Architecture
+* Analytics-Ready Data Models
+* Portfolio-Ready Real-World Project
