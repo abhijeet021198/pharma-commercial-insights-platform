@@ -67,46 +67,46 @@ with DAG(
     # --------------------------
 
     extract_accounts_task = BashOperator(
-    task_id="extract_accounts",
-    bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_accounts",
+        task_id="extract_accounts",
+        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_accounts",
     )
 
-    extract_products_task = PythonOperator(
+    extract_products_task = BashOperator(
         task_id="extract_products",
-        python_callable=extract_products,
+        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_products",
     )
 
-    extract_orders_task = PythonOperator(
+    extract_orders_task = BashOperator(
         task_id="extract_orders",
-        python_callable=extract_orders,
+        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_orders",
     )
 
-    extract_inventory_task = PythonOperator(
+    extract_inventory_task = BashOperator(
         task_id="extract_inventory",
-        python_callable=extract_inventory,
+        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_inventory",
     )
 
-    extract_interactions_task = PythonOperator(
+    extract_interactions_task = BashOperator(
         task_id="extract_interactions",
-        python_callable=extract_interactions,
+        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_interactions",
     )
 
     # --------------------------
     # Bronze Load
     # --------------------------
 
-    load_bronze_task = PythonOperator(
-        task_id="load_bronze",
-        python_callable=load_to_snowflake,
+    load_bronze_task = BashOperator(
+        task_id="load_to_snowflake",
+        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/load/bronze_loader.py",
     )
 
     # --------------------------
     # dbt Bronze
     # --------------------------
 
-    dbt_bronze_task = PythonOperator(
-        task_id="dbt_bronze",
-        python_callable=run_dbt_models,
+    dbt_bronze_task = BashOperator(
+        task_id="run_dbt_models",
+        bash_command="cd /mnt/c/Repo/pharma-commercial-insights-platform/dbt/pharma_dbt && dbt run",
     )
 
     # --------------------------

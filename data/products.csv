@@ -1,11 +1,3 @@
 product_id,product_name,brand,category
 PROD001,Stelara,Johnson & Johnson,Immunology
 PROD002,Darzalex,Johnson & Johnson,Oncology
-PROD003,Remicade,Johnson & Johnson,Immunology
-PROD004,Imbruvica,Johnson & Johnson,Oncology
-PROD005,Xarelto,Johnson & Johnson,Cardiovascular
-PROD006,Invokana,Johnson & Johnson,Diabetes
-PROD007,Simponi,Johnson & Johnson,Immunology
-PROD008,Tremfya,Johnson & Johnson,Dermatology
-PROD009,Erleada,Johnson & Johnson,Oncology
-PROD010,Uptravi,Johnson & Johnson,Pulmonary

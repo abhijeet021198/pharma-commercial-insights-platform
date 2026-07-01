@@ -1,7 +1,8 @@
 import pandas as pd
 
+def extract_products():
 # Simulated API Response
-products_data = [
+    products_data = [
     {
         "product_id": "PROD001",
         "product_name": "Stelara",
@@ -14,12 +15,15 @@ products_data = [
         "brand": "Johnson & Johnson",
         "category": "Oncology"
     }
-]
+    ]
 
-# Convert API response to DataFrame
-df = pd.DataFrame(products_data)
+    # Convert API response to DataFrame
+    df = pd.DataFrame(products_data)
 
-# Save as CSV
-df.to_csv("data/products.csv", index=False)
+    # Save as CSV
+    df.to_csv("data/products.csv", index=False)
 
-print("Products data extracted successfully")
+    print("Products data extracted successfully")
+
+if __name__ == "__main__":
+    extract_products()

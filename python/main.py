@@ -1,28 +1,10 @@
 import sys
 
-
-def extract_accounts():
-    print("Running Accounts Extraction...")
-
-
-def extract_products():
-    print("Running Products Extraction...")
-
-
-def extract_orders():
-    print("Running Orders Extraction...")
-
-
-def extract_inventory():
-    print("Running Inventory Extraction...")
-
-
-def extract_interactions():
-    print("Running Interactions Extraction...")
-
-
-def load_bronze():
-    print("Loading Bronze Tables...")
+from extract.extract_accounts import extract_accounts
+from extract.extract_products import extract_products
+from extract.extract_orders import extract_orders
+from extract.extract_inventory import extract_inventory
+from extract.extract_interactions import extract_interactions
 
 
 COMMANDS = {
@@ -31,14 +13,13 @@ COMMANDS = {
     "extract_orders": extract_orders,
     "extract_inventory": extract_inventory,
     "extract_interactions": extract_interactions,
-    "load_bronze": load_bronze,
 }
 
 
 def main():
+
     if len(sys.argv) != 2:
         print("Usage: python main.py <command>")
-        print(f"Available commands: {', '.join(COMMANDS.keys())}")
         sys.exit(1)
 
     command = sys.argv[1]
