@@ -216,3 +216,19 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Airflow Runtime
+airflow_home/
+
+# Local Virtual Environments
+venv_dbt/
+venv_airflow/
+
+# Airflow Runtime
+logs/
+
+# macOS / Linux
+.DS_Store
+
+# VS Code
+.vscode/
