@@ -1,52 +1,126 @@
 from airflow import DAG
 from airflow.providers.standard.operators.bash import BashOperator
-from airflow.providers.standard.operators.python import PythonOperator
+from airflow.utils.task_group import TaskGroup
+from airflow.providers.standard.operators.empty import EmptyOperator
 from datetime import datetime, timedelta
+from pathlib import Path
+from airflow.models import Variable
+from airflow.utils.email import send_email
+
+PROJECT_ROOT = Variable.get(
+    "PROJECT_ROOT",
+    default_var=str(Path(__file__).resolve().parents[2]),
+)
+
+DBT_PROJECT = Path(PROJECT_ROOT) / "dbt" / "pharma_dbt"
 
 
-# --------------------------------------------------
-# Placeholder Python Functions
-# (Will be replaced by the real extraction framework)
-# --------------------------------------------------
+def create_extract_task(task_name):
 
-def extract_accounts():
-    print("Extracting accounts data...")
+    return BashOperator(
+        task_id=f"extract_{task_name}",
+        bash_command=(
+            f"cd {PROJECT_ROOT} && "
+            f"python python/main.py extract_{task_name}"
+        ),
+        execution_timeout=timedelta(minutes=10),
+    )
 
+def create_dbt_task(command):
 
-def extract_products():
-    print("Extracting products data...")
+    return BashOperator(
+        task_id=f"dbt_{command}",
+        bash_command=(
+            f"cd {DBT_PROJECT} && "
+            f"dbt {command}"
+        ),
+        execution_timeout=timedelta(minutes=10),
+    )
 
+def notify_failure(context):
+    """
+    Global failure callback for the DAG.
+    Currently prints failure details.
+    Can later be extended to Email, Slack, or MS Teams.
+    """
 
-def extract_orders():
-    print("Extracting orders data...")
+    task_id = context["task_instance"].task_id
+    dag_id = context["dag"].dag_id
+    execution_date = context["logical_date"]
 
+    print("=" * 60)
+    print("PIPELINE FAILURE")
+    print(f"DAG : {dag_id}")
+    print(f"Task: {task_id}")
+    print(f"Run : {execution_date}")
+    print("=" * 60)
 
-def extract_interactions():
-    print("Extracting interactions data...")
+    # Future implementation
+    # send_email(
+    #     to=["data-team@company.com"],
+    #     subject=f"Airflow Failure: {dag_id}",
+    #     html_content=f"Task {task_id} failed.",
+    # )
 
+def notify_success(context):
+    """
+    Global success callback for the DAG.
+    Currently prints success details.
+    Can later be extended to Email, Slack, or MS Teams.
+    """
 
-def extract_inventory():
-    print("Extracting inventory data...")
+    dag_id = context["dag"].dag_id
+    execution_date = context["logical_date"]
 
+    print("=" * 60)
+    print("PIPELINE COMPLETED SUCCESSFULLY")
+    print(f"DAG : {dag_id}")
+    print(f"Run : {execution_date}")
+    print("=" * 60)
 
-def load_to_snowflake():
-    print("Loading data into Snowflake BRONZE tables...")
-
-
-def run_dbt_models():
-    print("Running dbt transformations...")
-
-
+    # Future implementation
+    # send_email(
+    #     to=["data-team@company.com"],
+    #     subject=f"Airflow Success: {dag_id}",
+    #     html_content="Pipeline completed successfully.",
+    # )
+    
 # --------------------------------------------------
 # Default Arguments
 # --------------------------------------------------
 
 default_args = {
-    "owner": "data_engineering",
-    "retries": 2,
-    "retry_delay": timedelta(minutes=5),
+    "owner": Variable.get("DAG_OWNER", default_var="data_engineering"),
+    "depends_on_past": False,
+    "retries": int(Variable.get("DAG_RETRIES", default_var=2)),
+    "retry_delay": timedelta(
+        minutes=int(Variable.get("RETRY_DELAY_MINUTES", default_var=5))
+    ),
 }
 
+DAG_DOCUMENTATION = """
+# Pharma Commercial Insights Pipeline
+
+## Pipeline Flow
+
+1. Extract source data
+2. Load CSV files into Snowflake Bronze
+3. Install dbt dependencies
+4. Run dbt transformations
+5. Execute dbt tests
+6. Mark pipeline completion
+
+## Technologies
+
+- Airflow
+- Python
+- Snowflake
+- dbt
+
+## Owner
+
+Data Engineering Team
+"""
 
 # --------------------------------------------------
 # DAG Definition
@@ -55,82 +129,60 @@ default_args = {
 with DAG(
     dag_id="pharma_analytics_pipeline",
     description="Enterprise Pharma Commercial Insights Pipeline",
+    doc_md=DAG_DOCUMENTATION,
     default_args=default_args,
     start_date=datetime(2026, 1, 1),
     schedule="@daily",
     catchup=False,
+    on_failure_callback=notify_failure,
+    on_success_callback=notify_success,
     tags=["pharma", "snowflake", "dbt"],
 ) as dag:
 
-    # --------------------------
-    # Python Extraction Tasks
-    # --------------------------
+    # --------------------------------------------------
+    # Extraction Tasks
+    # --------------------------------------------------
 
-    extract_accounts_task = BashOperator(
-        task_id="extract_accounts",
-        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_accounts",
-    )
+    with TaskGroup(group_id="extract_data") as extract_group:
 
-    extract_products_task = BashOperator(
-        task_id="extract_products",
-        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_products",
-    )
+        extract_accounts_task = create_extract_task("accounts")
 
-    extract_orders_task = BashOperator(
-        task_id="extract_orders",
-        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_orders",
-    )
+        extract_products_task = create_extract_task("products")
 
-    extract_inventory_task = BashOperator(
-        task_id="extract_inventory",
-        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_inventory",
-    )
+        extract_orders_task = create_extract_task("orders")
 
-    extract_interactions_task = BashOperator(
-        task_id="extract_interactions",
-        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/main.py extract_interactions",
-    )
+        extract_inventory_task = create_extract_task("inventory")
 
-    # --------------------------
+        extract_interactions_task = create_extract_task("interactions")
+
+    # --------------------------------------------------
     # Bronze Load
-    # --------------------------
+    # --------------------------------------------------
 
     load_bronze_task = BashOperator(
         task_id="load_to_snowflake",
-        bash_command="cd /home/abhijeet/projects/pharma-commercial-insights-platform && python python/load/bronze_loader.py",
+        bash_command=f"cd {PROJECT_ROOT} && python python/load/bronze_loader.py",
+        trigger_rule="all_success",
+        execution_timeout=timedelta(minutes=10),
     )
 
-    # --------------------------
-    # dbt Bronze
-    # --------------------------
+    # --------------------------------------------------
+    # dbt Models
+    # --------------------------------------------------
 
-    dbt_bronze_task = BashOperator(
-        task_id="run_dbt_models",
-        bash_command="cd /mnt/c/Repo/pharma-commercial-insights-platform/dbt/pharma_dbt && dbt run",
+    dbt_deps_task = create_dbt_task("deps")
+
+    dbt_run_task = create_dbt_task("run")
+
+    dbt_test_task = create_dbt_task("test")
+
+    pipeline_completed_task = EmptyOperator(
+        task_id="pipeline_completed",
+        trigger_rule="all_done",
     )
 
-    # --------------------------
-    # Future BashOperator
-    # (Temporary - validation only)
-    # --------------------------
+    # --------------------------------------------------
+    # Pipeline
+    # --------------------------------------------------
 
-    # run_accounts_entrypoint = BashOperator(
-    #     task_id="run_accounts_entrypoint",
-    #     bash_command="python python/main.py extract_accounts",
-    # )
-
-    # --------------------------
-    # Main Pipeline
-    # --------------------------
-
-    [
-        extract_accounts_task,
-        extract_products_task,
-        extract_orders_task,
-        extract_inventory_task,
-        extract_interactions_task,
-    ] >> load_bronze_task >> dbt_bronze_task
-
-    # NOTE:
-    # run_accounts_entrypoint is intentionally left independent.
-    # We'll test it first before replacing the PythonOperator.
+    extract_group >> load_bronze_task >> dbt_deps_task >> dbt_run_task >> dbt_test_task >> pipeline_completed_task
